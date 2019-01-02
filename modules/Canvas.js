@@ -1,3 +1,9 @@
+// assumptions: parent element is not a resizable HTMLElement like a
+// HTMLTextAreaElement, in which case nothing is going to work right
+//
+// implicitly, in the case of an iframe, it should already be rendered
+// to the parent document
+
 export default class Canvas {
 
   constructor(
@@ -21,7 +27,8 @@ export default class Canvas {
 
     this.style();
 
-    win.addEventListener('resize', this.resize.bind(this));
+    if (parent instanceof HTMLBodyElement)
+      win.addEventListener('resize', this.resize.bind(this));
   }
 
   style() {
