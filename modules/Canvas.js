@@ -1,30 +1,41 @@
 export default class Canvas {
 
   constructor(
-    doc,
+    parent,
     subrender = () => console.log('pass cool canvas operations here'),
-    rerender = true
+    contextType = '2d'
   ) {
     console.assert(
-      doc instanceof HTMLDocument,
-      'first argument must be a valid HTMLDocument'
+      parent instanceof HTMLElement,
+      'first argument must be a valid HTMLElement'
     );
 
-    this.doc = doc;
+    const doc = parent.getRootNode();
+    const win = doc.defaultView;
+
+    this.parent = parent;
     this.subrender = subrender;
 
-    this.canvas = this.doc.createElement('canvas');
-    this.context = this.canvas.getContext('2d');
+    this.canvas = doc.createElement('canvas');
+    this.context = this.canvas.getContext(contextType);
 
-    // document.defaultView === window, not IE compatible
-    this.doc.defaultView
-      .addEventListener('resize', this.resize.bind(this, rerender));
+    this.style();
+
+    win.addEventListener('resize', this.resize.bind(this));
   }
 
-  resize(rerender = false) {
-    this.canvas.setAttribute('width', this.doc.body.clientWidth);
-    this.canvas.setAttribute('height', this.doc.body.clientHeight);
-    if (rerender) this.render();
+  style() {
+    (new Map([
+      ['position', 'absolute'],
+      ['width', '100%'],
+      ['height', '100%']
+    ])).forEach((value, name) => this.canvas.style[name] = value);
+  }
+
+  resize() {
+    this.canvas.setAttribute('width', this.parent.clientWidth);
+    this.canvas.setAttribute('height', this.parent.clientHeight);
+    this.render();
     return this;
   }
 
@@ -36,7 +47,7 @@ export default class Canvas {
   }
 
   append() {
-    this.doc.body.appendChild(this.canvas);
+    this.parent.appendChild(this.canvas);
     return this;
   }
 

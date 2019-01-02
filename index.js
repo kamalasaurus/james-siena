@@ -3,7 +3,7 @@ import JamesSiena from './modules/JamesSiena.js';
 
 (function() {
   (new Canvas(
-    document,
+    document.body,
     JamesSiena()
   ))
     .append()
