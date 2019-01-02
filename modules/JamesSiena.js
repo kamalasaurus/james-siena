@@ -1,29 +1,29 @@
-export default function JamesSiena(L = 500) {
-  let colors = ['royalblue', 'magenta', 'cornsilk', 'chocolate'];
+import T from './Transforms.js';
 
-  let toRad = (deg) => { return deg * Math.PI / 180; };
+export default function JamesSiena(L = 500) {
+  const colors = ['royalblue', 'magenta', 'cornsilk', 'chocolate'];
+  const φ = -Math.PI/2;
 
   return function rectangle(
     context,
-    x = document.body.clientWidth / 3,
-    y = document.body.clientHeight / 3,
+    x = 0,
+    y = 0,
     length = L,
     color = 0,
     generation = 0
   ) {
-    if (length < 10) { return; }
+    if (length < 10) return;
 
-    context.fillStyle = colors[color];
     let nextcolor = (color + 1) % 4;
     let nextgen = generation + 1
 
     //context.translate(length/2, -2*length);
 
-    context.translate(length/3, length/6);
-    context.rotate(toRad(-90 * generation)); // skip first generation
+    let [x, y] = T.rotate(φ * generation, x, y); // skip first generation
+    let [x, y] = T.translate(/*move the origin and get min x, y points*/)
 
+    context.fillStyle = colors[color];
     context.fillRect(x, y, length, length/2);
-    context.resetTransform();
     rectangle(context, x, y, length/2, nextcolor, nextgen);
 
     switch (generation) {
