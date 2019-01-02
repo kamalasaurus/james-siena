@@ -1,59 +1,72 @@
 import T from './Transforms.js';
 
-export default function JamesSiena(L = 500) {
-  const colors = ['royalblue', 'magenta', 'cornsilk', 'chocolate'];
-  const φ = -Math.PI/2;
+export default function JamesSiena(
+  L = 500,
+  rotationAngle = (-Math.PI/2),
+  colors = ['royalblue', 'magenta', 'cornsilk', 'chocolate']
+) {
 
-  return function rectangle(
-    context,
-    x = 0,
-    y = 0,
-    length = L,
-    color = 0,
-    generation = 0
-  ) {
-    if (length < 10) return;
+  const nextRect = ({
+    x: previousX,
+    y: previousY,
+    angle: previousAngle,
+    length: previousLength,
+    color: previousColor,
+    generation: previousGeneration
+  }) => {
+    let generation = previousGeneration + 1;
+    let color = previousColor;
+    let length = previousLength/2;
+    let angle = rotationAngle * generation;
 
-    let nextcolor = (color + 1) % 4;
-    let nextgen = generation + 1
-
-    //context.translate(length/2, -2*length);
-
-    let [x, y] = T.rotate(φ * generation, x, y); // skip first generation
+    // check for generation === 5 and do the flip instead
+    let [x, y] = T.rotate(angle, x, y);
     let [x, y] = T.translate(/*move the origin and get min x, y points*/)
 
-    context.fillStyle = colors[color];
-    context.fillRect(x, y, length, length/2);
-    rectangle(context, x, y, length/2, nextcolor, nextgen);
+    return {x, y, angle, length, color, generation};
+  };
 
-    switch (generation) {
-      case 0:
-        //context.fillRect(x + padx, y + pady, width - 3*padx, height - 2*pady);
-        //rectangle(context, width + 2*padx, y + pady, width/2, height/2, color, nextgen);
-        //rectangle(context, nextcolor, 0);
-        break;
-      case 1:
-        //context.fillRect();
-        //rectangle(context, color, nextgen);
-        //rectangle(context, nextcolor, 0);
-        break;
-      case 2:
-        //context.fillRect();
-        //rectangle(context, color, nextgen);
-        //rectangle(context, nextcolor, 0);
-        break;
-      case 4:
-        //context.fillRect();
-        //rectangle(context, color, nextgen);
-        //rectangle(context, nextcolor, 0);
-        break;
-      case 5:
-        //context.fillRect(context, color, nextgen);
-        //rectangle(context, nextcolor, 0);
-        break;
-      default: break;
+
+  const innerRect = ({
+    x: previousX,
+    y: previousY,
+    angle: previousAngle,
+    length: previousLength,
+    color: previousColor,
+    generation: previousGeneration
+  }) => {
+    let generation = 0;
+    let color = (previousColor + 1) % 4;
+    let length = previousLength/2;
+    let angle = -rotationAngle * previousGeneration;
+
+    let [x, y] = T.rotate(angle, x, y);
+    let [x, y] = T.translate(/*move the origin and get min x, y points*/)
+
+    return {x, y, angle, length, color, generation};
+  };
+
+
+  const fractalRect = (
+    context,
+    rec = {
+      x: 0,
+      y: 0,
+      angle: 0,
+      length: L,
+      color: 0,
+      generation: 0
     }
+  ) => {
+    if (length < 10 || generation > 5) return;
 
-  }
+    context.fillStyle = colors[rec.color];
+    context.fillRect(x, y, rec.length, rec.length/2);
+
+    fractalRect(context, innerRect(rec));
+    fractalRect(context, nextRect(rec));
+  };
+
+  return fractalRect;
 }
 
