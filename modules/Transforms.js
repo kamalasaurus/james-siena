@@ -22,9 +22,13 @@ export default (function() {
     //
   };
 
+  const shiftOrigin = ({x, y}, length, angle1, angle2) {
+    
+  }
+
   return {
-    rotate: rotate,
-    translate: translate
+    shiftOrigin,
+    rotatedOrigin
   };
 
 })();

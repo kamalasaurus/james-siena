@@ -16,21 +16,24 @@ export default function JamesSiena(
     angle: previousAngle,
     coords: {
       origin: previousOrigin,
-      rotated: previousRotated
+      topLeft: previousTopLeft,
+      yFirst: previousYFirst
     }
   }) => {
     let generation = previousGeneration + 1;
     let color = previousColor;
     let length = previousLength/2;
     let angle = previousAngle + rotationAngle;
-    let coords = {};
+    let coords = {
+      yFirst = !previousYFirst;
+    };
 
     if (generation === 5) {
       coords.origin = ''
-      coords.rotated = ''
+      coords.topLeft = ''
     } else {
-      coords.origin = ''
-      coords.rotated = ''
+      coords.origin = T.shiftOrigin(previousOrigin, previousLength, previousAngle, angle, previousYFirst);
+      coords.topLeft = ''
     }
 
     let [x, y] = T.rotate(angle, x, y);
@@ -47,7 +50,8 @@ export default function JamesSiena(
     angle: previousAngle,
     coords: {
       origin: previousOrigin,
-      rotated: previousRotated
+      topLeft: previousTopLeft,
+      yFirst: previousYFirst
     }
   }) => {
     let generation = 0;
@@ -63,6 +67,10 @@ export default function JamesSiena(
   };
 
 
+  // this actually has to use phi goddammit I knew it
+
+  // yFirst accounts for traversal being -pi/2•x, -pi•y -> -pi•y, -3pi/2•x ->
+  // -3pi/2•x, -2pi•y -> -2pi•y, -5pi/2•x; 
   const fractalRect = (
     context,
     rect = {
@@ -72,14 +80,15 @@ export default function JamesSiena(
       angle: 0,
       coords: {
         origin: {x: 0, y: 0},
-        rotated: {x: 0, y: 0} // accounts for canvas having to draw from top-left
+        topLeft: {x: 0, y: 0}, // accounts for canvas having to draw from top-left
+        yFirst: false
       }
     }
   ) => {
     if (length < 10 || generation > 5) return;
 
     context.fillStyle = colors[rect.color];
-    context.fillRect(rect.rotated.x, rect.rotated.y, rect.length, rect.length/2);
+    context.fillRect(rect.topLeft.x, rect.topLeft.y, rect.length, rect.length/2);
 
     //fractalRect(context, innerRect(rect));
     fractalRect(context, nextRect(rect));
