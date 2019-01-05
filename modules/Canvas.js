@@ -9,7 +9,8 @@ export default class Canvas {
   constructor(
     parent,
     subrender = () => console.log('pass cool canvas operations here'),
-    contextType = '2d'
+    contextType = '2d',
+    rerender = true
   ) {
     console.assert(
       parent instanceof HTMLElement,
@@ -28,7 +29,7 @@ export default class Canvas {
     this.style();
 
     if (parent instanceof HTMLBodyElement)
-      win.addEventListener('resize', this.resize.bind(this));
+      win.addEventListener('resize', this.resize.bind(this, rerender));
   }
 
   style() {
@@ -39,10 +40,10 @@ export default class Canvas {
     ])).forEach((value, name) => this.canvas.style[name] = value);
   }
 
-  resize() {
+  resize(rerender = false) {
     this.canvas.setAttribute('width', this.parent.clientWidth);
     this.canvas.setAttribute('height', this.parent.clientHeight);
-    this.render();
+    if (rerender) this.render();
     return this;
   }
 
