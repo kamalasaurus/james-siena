@@ -35,7 +35,14 @@ export default function JamesSiena(
       shouldFlip
     );
 
-    const topLeft = T.minVertex(origin.x, origin.y, width, height, angle, coords.yFirst, shouldFlip);
+    const topLeft = T.minVertex(
+      origin.x,
+      origin.y,
+      width,
+      height,
+      angle,
+      coords.yFirst
+    );
 
     coords.origin = origin;
     coords.topLeft = topLeft;
