@@ -2,11 +2,12 @@ import T from './Transforms.js';
 
 export default function JamesSiena(
   L = 500,
-  colors = ['royalblue', 'magenta', 'cornsilk', 'chocolate', 'black']
+  colors = ['royalblue', 'magenta', 'cornsilk', 'chocolate']
 ) {
 
   const nextRect = ({
     generation: previousGeneration,
+    nesting: previousNesting,
     color: previousColor,
     width: previousWidth,
     height: previousHeight,
@@ -18,6 +19,7 @@ export default function JamesSiena(
     }
   }) => {
     const generation = previousGeneration + 1;
+    const nesting = previousNesting;
     const color = previousColor;
     const coords = {
       yFirst: !previousYFirst
@@ -47,13 +49,14 @@ export default function JamesSiena(
     coords.origin = origin;
     coords.topLeft = topLeft;
 
-    return {generation, color, width, height, angle, coords};
+    return {generation, nesting, color, width, height, angle, coords};
   };
 
   const innerRect = (
     context,
     {
       generation: previousGeneration,
+      nesting: previousNesting,
       color: previousColor,
       width: previousWidth,
       height: previousHeight,
@@ -66,6 +69,7 @@ export default function JamesSiena(
     }
   ) => {
     const generation = 0;
+    const nesting = previousNesting + 1;
     const color = (previousColor + 1) % 4;
     const coords = {
       yFirst: !previousYFirst
@@ -95,7 +99,7 @@ export default function JamesSiena(
     coords.origin = origin;
     coords.topLeft = topLeft;
 
-    fractalRect(context, {generation, color, width, height, angle, coords});
+    fractalRect(context, {generation, nesting, color, width, height, angle, coords});
   };
 
   // this would be a lot simpler if it was point based instead of rect-based
@@ -108,6 +112,7 @@ export default function JamesSiena(
     context,
     rect = {
       generation: 0,
+      nesting: 1,
       color: 0,
       width: L,
       height: L / T.φ,
@@ -121,20 +126,13 @@ export default function JamesSiena(
   ) => {
     if (rect.width < 30 || rect.height < 30 || rect.generation > 5) return;
 
+    const xPad = 1 * rect.nesting;
+    const yPad = 1 * rect.nesting;
+
     context.fillStyle = colors[rect.color];
-    context.fillRect(rect.coords.topLeft.x, rect.coords.topLeft.y, rect.width, rect.height);
+    context.fillRect(rect.coords.topLeft.x + xPad, rect.coords.topLeft.y + yPad, rect.width - 2*xPad, rect.height - 2*yPad);
 
-    const strokeColor = rect.color -1 < 0 ?
-      colors.length -1 :
-      rect.color -1;
-
-    context.strokeStyle = colors[strokeColor];
-    context.strokeRect(rect.coords.topLeft.x, rect.coords.topLeft.y, rect.width, rect.height);
-
-    if (rect.generation === 0) {
-      debugger;
-      innerRect(context, rect);
-    }
+    innerRect(context, rect);
     fractalRect(context, nextRect(rect));
   };
 

@@ -3,8 +3,10 @@ export default (function() {
   const φ = ((1 + Math.sqrt(5)) / 2);
   const 𝝉 = Math.PI/2;
 
-  const translateX = (x, width, angle) => {
-    return x + width * Math.cos(angle);
+  const translateX = (x, width, angle, inner) => {
+    return inner ?
+     x - width * Math.cos(angle) :
+     x + width * Math.cos(angle);
   };
 
   const translateY = (y, height, angle) => {
@@ -71,27 +73,29 @@ export default (function() {
     shouldFlip = false
   )  => {
 
-    const width = shouldFlip ?
+    const width = yFirst ?
       previousWidth :
+      previousWidth/2;
+
+    const height = yFirst ?
+      previousHeight/2 :
+      previousHeight;
+
+    const angle = shouldFlip ?
+      -previousAngle :
+      previousAngle - 𝝉;
+
+    const x = shouldFlip ?
+        translateX(previousX, previousWidth, previousAngle) :
+        yFirst ?
+          translateX(previousX, previousWidth, angle, true) :
+          translateX(previousX, previousWidth, angle);
+
+    const y = shouldFlip ?
+      translateY(previousY, previousHeight, angle + 𝝉) :
       yFirst ?
-        previousWidth :
-        previousWidth/2;
-
-    const height = shouldFlip ?
-      previousHeight :
-      yFirst ?
-        previousHeight/2 :
-        previousHeight;
-
-    const angle = previousAngle - 𝝉;
-
-    const x = yFirst ?
-      translateX(previousX, previousWidth, previousAngle) :
-      translateX(previousX, previousWidth, angle);
-
-    const y = yFirst ?
-      translateY(previousY, previousHeight, -previousAngle) :
-      translateY(previousY, previousHeight, -angle);
+        translateY(previousY, previousHeight, angle) :
+        translateY(previousY, previousHeight, -angle);
 
     return {width, height, angle, origin: {x, y}};
 
