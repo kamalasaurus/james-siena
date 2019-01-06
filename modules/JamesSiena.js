@@ -2,7 +2,7 @@ import T from './Transforms.js';
 
 export default function JamesSiena(
   L = 500,
-  colors = ['royalblue', 'magenta', 'cornsilk', 'chocolate']
+  colors = ['royalblue', 'magenta', 'cornsilk', 'chocolate', 'black']
 ) {
 
   const nextRect = ({
@@ -18,7 +18,7 @@ export default function JamesSiena(
     }
   }) => {
     const generation = previousGeneration + 1;
-    const color = (previousColor + 1) % 4;
+    const color = previousColor;
     const coords = {
       yFirst: !previousYFirst
     };
@@ -50,32 +50,57 @@ export default function JamesSiena(
     return {generation, color, width, height, angle, coords};
   };
 
-
-  const innerRect = ({
-    generation: previousGeneration,
-    color: previousColor,
-    width: previousWidth,
-    height: previousHeight,
-    angle: previousAngle,
-    coords: {
-      origin: previousOrigin,
-      topLeft: previousTopLeft,
-      yFirst: previousYFirst
+  const innerRect = (
+    context,
+    {
+      generation: previousGeneration,
+      color: previousColor,
+      width: previousWidth,
+      height: previousHeight,
+      angle: previousAngle,
+      coords: {
+        origin: previousOrigin,
+        topLeft: previousTopLeft,
+        yFirst: previousYFirst
+      }
     }
-  }) => {
-    let generation = 0;
-    let color = (previousColor + 1) % 4;
-    let height = previousHeight*T.φ;
-    let angle = -rotationAngle * previousGeneration;
-    let coords = {
+  ) => {
+    const generation = 0;
+    const color = (previousColor + 1) % 4;
+    const coords = {
       yFirst: !previousYFirst
     };
 
-    //coords.origin = T.shiftOrigin(previousOrigin, previousLength, previousAngle, angle, previousYFirst);
-    coords.topLeft = ''
+    const shouldFlip = previousGeneration === 5;
 
-    return {generation, color, length, angle, coords};
+    const {width, height, angle, origin} = T.shiftInnerOrigin(
+      previousOrigin.x,
+      previousOrigin.y,
+      previousWidth,
+      previousHeight,
+      previousAngle,
+      previousYFirst,
+      shouldFlip
+    );
+
+    const topLeft = T.minVertex(
+      origin.x,
+      origin.y,
+      width,
+      height,
+      angle,
+      coords.yFirst
+    );
+
+    coords.origin = origin;
+    coords.topLeft = topLeft;
+
+    fractalRect(context, {generation, color, width, height, angle, coords});
   };
+
+  // this would be a lot simpler if it was point based instead of rect-based
+  // each rect is drawn along the diagonal b/w 2 consecutive points.  Too lazy
+  // to refactor now.
 
   // yFirst accounts for traversal being -pi/2•x, -pi•y -> -pi•y, -3pi/2•x ->
   // -3pi/2•x, -2pi•y -> -2pi•y, -5pi/2•x;
@@ -94,16 +119,22 @@ export default function JamesSiena(
       }
     }
   ) => {
-    if (rect.length < 10 || rect.generation > 5) return;
+    if (rect.width < 30 || rect.height < 30 || rect.generation > 5) return;
 
-    // figure out a way to draw after the second coordinate comes in, to have the most
-    // generalized algorithm and less surface area
     context.fillStyle = colors[rect.color];
     context.fillRect(rect.coords.topLeft.x, rect.coords.topLeft.y, rect.width, rect.height);
 
-    //TODO: fractalRect(context, nextRect(T.makeInner(rect)))
-    //fractalRect(context, innerRect(rect));
-    //TODO: fractalRect(context, nextRect(T.shiftOrigin(rect)))
+    const strokeColor = rect.color -1 < 0 ?
+      colors.length -1 :
+      rect.color -1;
+
+    context.strokeStyle = colors[strokeColor];
+    context.strokeRect(rect.coords.topLeft.x, rect.coords.topLeft.y, rect.width, rect.height);
+
+    if (rect.generation === 0) {
+      debugger;
+      innerRect(context, rect);
+    }
     fractalRect(context, nextRect(rect));
   };
 

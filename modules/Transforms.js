@@ -9,7 +9,7 @@ export default (function() {
 
   const translateY = (y, height, angle) => {
     return y + height * Math.sin(angle);
-  }
+  };
 
   const shiftOrigin = (
     previousX,
@@ -20,20 +20,25 @@ export default (function() {
     yFirst,
     shouldFlip = false
   ) => {
+
     const width = shouldFlip ?
       previousWidth :
       yFirst ?
         previousWidth :
         previousWidth/2;
+
     const height = shouldFlip ?
       previousHeight :
       yFirst ?
         previousHeight/2 :
         previousHeight;
+
     const angle = previousAngle + 𝝉;
+
     const x = yFirst ?
       translateX(previousX, previousWidth, angle) :
       translateX(previousX, previousWidth, previousAngle);
+
     const y = yFirst ?
       translateY(previousY, previousHeight, previousAngle) :
       translateY(previousY, previousHeight, angle);
@@ -47,20 +52,56 @@ export default (function() {
     currentWidth,
     currentHeight,
     currentAngle,
-    yFirst,
-    shouldFlip
+    yFirst
   ) => {
-    const {width, height, angle, origin} = shiftOrigin(currentX, currentY, currentWidth, currentHeight, currentAngle, yFirst, shouldFlip);
+    const {width, height, angle, origin} = shiftOrigin(currentX, currentY, currentWidth, currentHeight, currentAngle, yFirst);
     return {
       x: Math.min(currentX, origin.x),
       y: Math.min(currentY, origin.y)
     };
   };
 
+  const shiftInnerOrigin = (
+    previousX,
+    previousY,
+    previousWidth,
+    previousHeight,
+    previousAngle,
+    yFirst,
+    shouldFlip = false
+  )  => {
+
+    const width = shouldFlip ?
+      previousWidth :
+      yFirst ?
+        previousWidth :
+        previousWidth/2;
+
+    const height = shouldFlip ?
+      previousHeight :
+      yFirst ?
+        previousHeight/2 :
+        previousHeight;
+
+    const angle = previousAngle - 𝝉;
+
+    const x = yFirst ?
+      translateX(previousX, previousWidth, previousAngle) :
+      translateX(previousX, previousWidth, angle);
+
+    const y = yFirst ?
+      translateY(previousY, previousHeight, -previousAngle) :
+      translateY(previousY, previousHeight, -angle);
+
+    return {width, height, angle, origin: {x, y}};
+
+  };
+
   return {
     φ,
     shiftOrigin,
-    minVertex
+    minVertex,
+    shiftInnerOrigin
   };
 
 })();
