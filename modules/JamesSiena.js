@@ -5,10 +5,6 @@ export default function JamesSiena(
   colors = ['royalblue', 'magenta', 'cornsilk', 'chocolate']
 ) {
 
-
-  //nextForm = { ... }
-  //nextRec = (prevRec) => prevRec.map((v, n) => nextForm[n](v))
-
   const nextRect = ({
     generation: previousGeneration,
     color: previousColor,
@@ -74,9 +70,6 @@ export default function JamesSiena(
     return {generation, color, length, angle, coords};
   };
 
-
-  // this actually has to use phi goddammit I knew it
-
   // yFirst accounts for traversal being -pi/2•x, -pi•y -> -pi•y, -3pi/2•x ->
   // -3pi/2•x, -2pi•y -> -2pi•y, -5pi/2•x;
   const fractalRect = (
@@ -96,10 +89,14 @@ export default function JamesSiena(
   ) => {
     if (rect.length < 10 || rect.generation > 5) return;
 
+    // figure out a way to draw after the second coordinate comes in, to have the most
+    // generalized algorithm and less surface area
     context.fillStyle = colors[rect.color];
     context.fillRect(rect.coords.topLeft.x, rect.coords.topLeft.y, rect.width, rect.height);
 
+    //TODO: fractalRect(context, nextRect(T.makeInner(rect)))
     //fractalRect(context, innerRect(rect));
+    //TODO: fractalRect(context, nextRect(T.shiftOrigin(rect)))
     fractalRect(context, nextRect(rect));
   };
 
