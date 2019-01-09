@@ -73,16 +73,16 @@ export default (function() {
     shouldFlip = false
   )  => {
 
-    const width = yFirst ?
+    const width = (shouldFlip ^ yFirst) ?
       previousWidth :
       previousWidth/2;
 
-    const height = yFirst ?
+    const height = (shouldFlip ^ yFirst) ?
       previousHeight/2 :
       previousHeight;
 
     const angle = shouldFlip ?
-      -previousAngle :
+      previousAngle + Math.PI :
       previousAngle - 𝝉;
 
     const x = shouldFlip ?

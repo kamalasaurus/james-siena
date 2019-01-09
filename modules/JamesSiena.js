@@ -77,6 +77,14 @@ export default function JamesSiena(
 
     const shouldFlip = previousGeneration === 5;
 
+    if (shouldFlip) {
+      context.fillStyle = 'lightblue';
+      const xPad = 1 * nesting;
+      const yPad = 1 * nesting;
+      context.fillRect(previousTopLeft.x + xPad, previousTopLeft.y + yPad, previousWidth - 2*xPad, previousHeight - 2*yPad);
+
+    } else {
+
     const {width, height, angle, origin} = T.shiftInnerOrigin(
       previousOrigin.x,
       previousOrigin.y,
@@ -100,6 +108,7 @@ export default function JamesSiena(
     coords.topLeft = topLeft;
 
     fractalRect(context, {generation, nesting, color, width, height, angle, coords});
+  }
   };
 
   // this would be a lot simpler if it was point based instead of rect-based
